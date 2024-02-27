@@ -14,11 +14,11 @@ func getHouseCusps(utcTime string, latitude, longitude float64, houseSystem stri
 		return nil, fmt.Errorf("error parsing UTC time: %w", err)
 	}
 
-	var dret [2]float64
-	var serr [256]byte
+	dret := make([]float64, 2)
+	serr := make([]byte, 255)
 
 	// Convert UTC time to Julian Day number
-	err_code := swephgo.UtcToJd(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), float64(t.Second()), swephgo.SeGregCal, dret[:], serr[:])
+	err_code := swephgo.UtcToJd(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), float64(t.Second()), swephgo.SeGregCal, dret, serr)
 	if err_code == swephgo.Err {
 		return nil, fmt.Errorf("error converting UTC time to Julian Day: %w", serr)
 	}
@@ -26,14 +26,15 @@ func getHouseCusps(utcTime string, latitude, longitude float64, houseSystem stri
 	tjdUt := dret[1]
 
 	// Calculate house cusps
-	var cusps [13]float64
-	var ascmc [10]float64
-	swephgo.Houses(tjdUt, latitude, longitude, int('P'), cusps[:], ascmc[:])
+
+	cusps := make([]float64, 10)
+	ascmc := make([]float64, 10)
+	swephgo.Houses(tjdUt, latitude, longitude, int('P'), cusps, ascmc)
 	// if err_code == swephgo.Err {
 	// 	return nil, fmt.Errorf("error converting UTC time to Julian Day: %w", serr)
 	// }
 
-	return cusps[:], nil
+	return cusps, nil
 }
 
 func main() {

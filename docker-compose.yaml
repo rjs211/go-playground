@@ -1,0 +1,17 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - .:/code
+    # ports:
+    # environment:
+    # depends_on:
+    # env_file:
+    cap_add:
+      - SYS_PTRACE
+    stdin_open: True
+    tty: True
+

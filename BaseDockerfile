@@ -1,0 +1,41 @@
+# Define version as a variable
+
+# First Build Step
+FROM golang:1.22 AS builder
+
+ARG VERSION=2.10.03
+
+WORKDIR /app
+
+# Step 1: Download the file
+RUN apt-get update && apt-get install -y wget
+RUN wget https://github.com/aloistr/swisseph/archive/refs/tags/v${VERSION}.zip
+
+# Step 2: Install unzip
+RUN apt-get install -y unzip
+
+# Step 3: Unzip the downloaded file
+RUN unzip v${VERSION}.zip
+
+# Step 4: Build libswe.so
+WORKDIR /app/swisseph-${VERSION}
+
+RUN echo "" >> Makefile
+RUN echo "vatsa-libswe.so: \$(SWEOBJ)" >> Makefile
+RUN echo "\t\$(CC) -shared -o libswe.so \$(SWEOBJ) -lm -ldl" >> Makefile
+RUN echo "" >> Makefile
+
+
+
+RUN make vatsa-libswe.so
+
+# Second Build Step
+FROM golang:1.22
+
+ARG VERSION=2.10.03
+
+# Copy libswe.so from the previous build step
+COPY --from=builder /app/swisseph-${VERSION}/libswe.so /usr/local/lib/
+
+# Set LD_LIBRARY_PATH environment variable
+ENV LD_LIBRARY_PATH="/usr/local/lib"

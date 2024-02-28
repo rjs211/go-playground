@@ -1,4 +1,4 @@
-FROM vatsa/gopl-sweph-base:0.0.2
+FROM vatsa/gopl-sweph-base:latest
 
 WORKDIR /code
 
